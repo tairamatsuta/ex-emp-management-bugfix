@@ -57,7 +57,7 @@ public class AdministratorController {
 	 * @return 管理者登録画面
 	 */
 	@RequestMapping("/toInsert")
-	public String toInsert(Model model) {
+	public String toInsert() {
 		return "administrator/insert";
 	}
 
@@ -74,7 +74,7 @@ public class AdministratorController {
 			, BindingResult result
 			, Model model) {
 		if(result.hasErrors()) {
-			return toInsert(model);
+			return toInsert();
 		}
 		Administrator administrator = new Administrator();
 		// フォームからドメインにプロパティ値をコピー
@@ -92,7 +92,7 @@ public class AdministratorController {
 	 * @return ログイン画面
 	 */
 	@RequestMapping("/")
-	public String toLogin(Model model) {
+	public String toLogin() {
 		return "administrator/login";
 	}
 
@@ -111,12 +111,12 @@ public class AdministratorController {
 			, BindingResult result
 			, Model model) {
 		if(result.hasErrors()) {
-			return toLogin(model);
+			return toLogin();
 		}
 		Administrator administrator = administratorService.login(form.getMailAddress(), form.getPassword());
 		if (administrator == null) {
 			model.addAttribute("errorMessage", "メールアドレスまたはパスワードが不正です。");
-			return toLogin(model);
+			return toLogin();
 		}
 		return "forward:/employee/showList";
 	}
