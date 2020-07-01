@@ -27,8 +27,12 @@ public class EmployeeService {
 	 * 
 	 * @return　従業員情報一覧
 	 */
-	public List<Employee> showList() {
-		List<Employee> employeeList = employeeRepository.findAll();
+	public List<Employee> showList(String fuzzyName) {
+		if(fuzzyName == null) {
+			List<Employee> employeeList = employeeRepository.findAll();			
+			return employeeList;
+		}
+		List<Employee> employeeList = employeeRepository.findByName(fuzzyName);
 		return employeeList;
 	}
 	
