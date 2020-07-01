@@ -74,11 +74,8 @@ public class AdministratorController {
 			@Validated InsertAdministratorForm form
 			, BindingResult result
 			, Model model) {
-		Administrator administrator = new Administrator();
-		// フォームからドメインにプロパティ値をコピー
-		BeanUtils.copyProperties(form, administrator);
-		Administrator existAdministrator = new Administrator();
-		existAdministrator = administratorService.findByMailAddress(administrator.getMailAddress());
+
+		Administrator existAdministrator = administratorService.findByMailAddress(form.getMailAddress());
 		if(existAdministrator != null) {
 			FieldError mailAddressError = new FieldError(result.getObjectName(), "mailAddress", "このメールアドレスは既に登録されています。");
 			result.addError(mailAddressError);
@@ -90,6 +87,10 @@ public class AdministratorController {
 		if(result.hasErrors()) {
 			return toInsert();
 		}
+		
+		Administrator administrator = new Administrator();
+		// フォームからドメインにプロパティ値をコピー
+		BeanUtils.copyProperties(form, administrator);
 		administratorService.insert(administrator);
 		return "redirect:/";
 	}
