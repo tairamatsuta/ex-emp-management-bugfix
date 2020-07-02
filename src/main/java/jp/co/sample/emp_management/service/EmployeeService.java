@@ -56,4 +56,8 @@ public class EmployeeService {
 	public void update(Employee employee) {
 		employeeRepository.update(employee);
 	}
+	
+	public List<String> showAllName(){
+		return employeeRepository.findAllName();
+	}
 }

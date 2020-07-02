@@ -40,6 +40,11 @@ public class EmployeeRepository {
 		employee.setDependentsCount(rs.getInt("dependents_count"));
 		return employee;
 	};
+	
+	private static final RowMapper<String> NAME_ROW_MAPPER = (rs, i) -> {
+		String name = rs.getString("name");
+		return name;
+	};
 
 	@Autowired
 	private NamedParameterJdbcTemplate template;
@@ -94,5 +99,15 @@ public class EmployeeRepository {
 		SqlParameterSource param = new MapSqlParameterSource().addValue("name", "%" + name + "%");
 		List<Employee> employeeList = template.query(sql, param, EMPLOYEE_ROW_MAPPER);
 		return employeeList;
+	}
+	
+	/**
+	 * 従業員名を全件検索する.
+	 * @return　従業員名
+	 */
+	public List<String> findAllName(){
+		String sql = "SELECT name FROM employees ORDER BY name;";
+		List<String> nameList = template.query(sql, NAME_ROW_MAPPER);
+		return nameList;
 	}
 }
