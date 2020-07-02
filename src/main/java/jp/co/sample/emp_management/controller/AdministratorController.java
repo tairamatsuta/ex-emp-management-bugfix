@@ -4,7 +4,6 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -98,8 +97,6 @@ public class AdministratorController {
 		Administrator administrator = new Administrator();
 		// フォームからドメインにプロパティ値をコピー
 		BeanUtils.copyProperties(form, administrator);
-		// ハッシュ化
-		administrator.setPassword(BCrypt.hashpw(administrator.getPassword(), BCrypt.gensalt()));
 		administratorService.insert(administrator);
 		return "redirect:/";
 	}
@@ -134,8 +131,8 @@ public class AdministratorController {
 		if(result.hasErrors()) {
 			return toLogin();
 		}
-		Administrator administrator = administratorService.findByMailAddress(form.getMailAddress());
-		if(!BCrypt.checkpw(form.getPassword(), administrator.getPassword())) {
+		Administrator administrator = administratorService.login(form.getMailAddress(), form.getPassword());
+		if(administrator == null) {
 			model.addAttribute("errorMessage", "メールアドレスまたはパスワードが不正です。");
 			return toLogin();
 		}

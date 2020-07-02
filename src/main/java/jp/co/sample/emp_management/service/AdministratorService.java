@@ -1,6 +1,7 @@
 package jp.co.sample.emp_management.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,8 @@ public class AdministratorService {
 	 * @param administrator　管理者情報
 	 */
 	public void insert(Administrator administrator) {
+		// ハッシュ化
+		administrator.setPassword(BCrypt.hashpw(administrator.getPassword(), BCrypt.gensalt()));
 		administratorRepository.insert(administrator);
 	}
 	
@@ -35,14 +38,18 @@ public class AdministratorService {
 	 * @param password パスワード
 	 * @return 管理者情報　存在しない場合はnullが返ります
 	 */
-	public Administrator login(String mailAddress, String passward) {
-		Administrator administrator = administratorRepository.findByMailAddressAndPassward(mailAddress, passward);
+	public Administrator login(String mailAddress, String password) {
+		Administrator administrator = administratorRepository.findByMailAddressAndPassward(mailAddress, password);
+		if(!BCrypt.checkpw(password, administrator.getPassword())) {
+			return null;
+		}
 		return administrator;
 	}
 	
 	/**
 	 * メールアドレスから管理者情報を検索.
 	 * @param mailAddress　メールアドレス
+     * @param password パスワード
 	 * @return　管理者情報　存在しない場合はnullが返ります
 	 */
 	public Administrator findByMailAddress(String mailAddress) {
