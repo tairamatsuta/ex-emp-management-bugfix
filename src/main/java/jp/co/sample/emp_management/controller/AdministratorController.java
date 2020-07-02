@@ -4,6 +4,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -32,6 +33,11 @@ public class AdministratorController {
 	
 	@Autowired
 	private HttpSession session;
+	
+//	@Bean
+//	private PasswordEncoder passwordEncoder() {
+//		return new BCryptPasswordEncoder();
+//	}
 
 	/**
 	 * 使用するフォームオブジェクトをリクエストスコープに格納する.
@@ -74,7 +80,6 @@ public class AdministratorController {
 			@Validated InsertAdministratorForm form
 			, BindingResult result
 			, Model model) {
-
 		Administrator existAdministrator = administratorService.findByMailAddress(form.getMailAddress());
 		if(existAdministrator != null) {
 			FieldError mailAddressError = new FieldError(result.getObjectName(), "mailAddress", "このメールアドレスは既に登録されています。");
@@ -83,6 +88,8 @@ public class AdministratorController {
 		if(!form.getPassword().equals(form.getConfirmationPassword())) {
 			FieldError passwordError = new FieldError(result.getObjectName(), "password", "パスワードが一致していません。");
 			result.addError(passwordError);
+			System.out.println(form.getPassword());
+			System.out.println(form.getConfirmationPassword());
 		}
 		if(result.hasErrors()) {
 			return toInsert();
@@ -91,6 +98,8 @@ public class AdministratorController {
 		Administrator administrator = new Administrator();
 		// フォームからドメインにプロパティ値をコピー
 		BeanUtils.copyProperties(form, administrator);
+		// ハッシュ化
+		administrator.setPassword(BCrypt.hashpw(administrator.getPassword(), BCrypt.gensalt()));
 		administratorService.insert(administrator);
 		return "redirect:/";
 	}
@@ -125,12 +134,11 @@ public class AdministratorController {
 		if(result.hasErrors()) {
 			return toLogin();
 		}
-		Administrator administrator = administratorService.login(form.getMailAddress(), form.getPassword());
-		if (administrator == null) {
+		Administrator administrator = administratorService.findByMailAddress(form.getMailAddress());
+		if(!BCrypt.checkpw(form.getPassword(), administrator.getPassword())) {
 			model.addAttribute("errorMessage", "メールアドレスまたはパスワードが不正です。");
 			return toLogin();
 		}
-		System.out.println(administrator.getName());
 		session.setAttribute("administratorName", administrator.getName());
 		return "forward:/employee/showList";
 	}

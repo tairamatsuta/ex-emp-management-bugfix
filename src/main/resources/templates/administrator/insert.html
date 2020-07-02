@@ -76,14 +76,14 @@
 										</label>
 										<input type="password" name="password" id="password" class="form-control" placeholder="password"
 											 th:field="*{password}" th:errorclass="error-input" value="xxxxxxxx">
-										<label for="passwaord">
+										<label for="confirmationPassword">
 											確認用パスワード:
 										</label>
 										<label th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error-messages">
 											確認用パスワードを入力してください
 										</label>
-										<input type="password" name="password" id="password" class="form-control" placeholder="確認用Password"
-											 th:field="*{password}" th:errorclass="error-input" value="xxxxxxxx">
+										<input type="password" name="confirmationPassword" id="confirmationPassword" class="form-control" placeholder="確認用Password"
+											 th:field="*{confirmationPassword}" th:errorclass="error-input" value="xxxxxxxx">
 									</div>
 								</div>
 							</div>
