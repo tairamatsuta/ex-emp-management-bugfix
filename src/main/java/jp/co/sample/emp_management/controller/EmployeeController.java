@@ -100,6 +100,10 @@ public class EmployeeController {
 		return "redirect:/employee/showList";
 	}
 	
+	/**
+	 * オートコンプリート用のnameListを生成する.
+	 * @return　JSON形式でnameListを返す
+	 */
 	@ResponseBody
 	@RequestMapping(value = "/autoComplete", method = RequestMethod.GET)
 	public String getAutoComplete() {
