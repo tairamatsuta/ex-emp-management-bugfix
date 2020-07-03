@@ -105,9 +105,46 @@ public class EmployeeRepository {
 	 * 従業員名を全件検索する.
 	 * @return　従業員名
 	 */
-	public List<String> findAllName(){
+	public List<String> findAllName() {
 		String sql = "SELECT name FROM employees ORDER BY name;";
 		List<String> nameList = template.query(sql, NAME_ROW_MAPPER);
 		return nameList;
+	}
+	
+	/**
+	 * idの最大値を検索する.
+	 * @return idの最大値
+	 */
+	public int findMaxId() {
+		String sql = "SELECT id,name,image,gender,hire_date,mail_address,zip_code,address,telephone,salary,characteristics,dependents_count FROM employees WHERE id = (SELECT max(id) FROM employees);";
+		SqlParameterSource param = new MapSqlParameterSource();
+		Employee employee = template.queryForObject(sql, param, EMPLOYEE_ROW_MAPPER);
+		return employee.getId();
+	}
+	
+	/**
+	 * 従業員を登録する.
+	 * @param employee 新規従業員情報
+	 */
+	public void insertEmployee(Employee employee) {
+		SqlParameterSource param = new BeanPropertySqlParameterSource(employee);
+		String insertSql = "INSERT INTO employees(id,name,image,gender,hire_date,mail_address,zip_code,address,telephone,salary,characteristics,dependents_count) VALUES(:id,:name,:image,:gender,:hireDate,:mailAddress,:zipCode,:address,:telephone,:salary,:characteristics,:dependentsCount);";
+		template.update(insertSql, param);
+	}
+	
+	/**
+	 * メールアドレスドから従業員情報を取得します.
+	 * 
+	 * @param mailAddress メールアドレス
+	 * @return 従業員情報 存在しない場合はnullを返します
+	 */
+	public Employee findByMailAddress(String mailAddress) {
+		String sql = "SELECT id,name,image,gender,hire_date,mail_address,zip_code,address,telephone,salary,characteristics,dependents_count FROM employees WHERE mail_address= :mailAddress;";
+		SqlParameterSource param = new MapSqlParameterSource().addValue("mailAddress", mailAddress);
+		List<Employee> employeeList = template.query(sql, param, EMPLOYEE_ROW_MAPPER);
+		if(employeeList.size() == 0) {
+			return null;
+		}
+		return employeeList.get(0);
 	}
 }

@@ -1,11 +1,14 @@
 package jp.co.sample.emp_management.controller;
 
+import java.sql.Date;
 import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import jp.co.sample.emp_management.domain.Employee;
+import jp.co.sample.emp_management.form.InsertEmployeeForm;
 import jp.co.sample.emp_management.form.UpdateEmployeeForm;
 import jp.co.sample.emp_management.service.EmployeeService;
 import net.arnx.jsonic.JSON;
@@ -38,6 +42,11 @@ public class EmployeeController {
 	@ModelAttribute
 	public UpdateEmployeeForm setUpForm() {
 		return new UpdateEmployeeForm();
+	}
+	
+	@ModelAttribute
+	public InsertEmployeeForm setUpInsertEmployeeForm() {
+		return new InsertEmployeeForm();
 	}
 
 	/////////////////////////////////////////////////////
@@ -99,6 +108,56 @@ public class EmployeeController {
 		employeeService.update(employee);
 		return "redirect:/employee/showList";
 	}
+	
+	/////////////////////////////////////////////////////
+	// ユースケース：従業員情報を登録する
+	/////////////////////////////////////////////////////
+	/**
+	 * 従業員登録画面を出力します.
+	 * 
+	 * @return 従業員登録画面
+	 */
+	@RequestMapping("/toInsert")
+	public String toInsert() {
+		return "employee/insert";
+	}
+	
+	/**
+	 * 従業員情報を登録します.
+	 * 
+	 * @param form 従業員情報用フォーム
+	 * @return 従業員一覧へリダイレクト
+	 */
+	@RequestMapping("/insert")
+	synchronized public String insert(
+			@Validated InsertEmployeeForm form
+			, BindingResult result
+			, Model model) {
+		System.out.println(form.toString());
+		if(form.getImage().equals("")) {
+			FieldError imageError = new FieldError(result.getObjectName(), "image", "画像をアップロードしてください");
+			result.addError(imageError);
+		}
+		Employee existEmployee = employeeService.findByMailAddress(form.getMailAddress());
+		if(existEmployee != null) {
+			FieldError employeeMailAddressError = new FieldError(result.getObjectName(), "mailAddress", "このメールアドレスは既に登録されています");
+			result.addError(employeeMailAddressError);
+		}
+		if(result.hasErrors()) {
+			return toInsert();
+		}
+		Employee employee = new Employee();
+		// フォームからドメインにプロパティ値をコピー
+		BeanUtils.copyProperties(form, employee);
+		// コピーできなかったプロパティ値を手動でコピー
+		employee.setHireDate(Date.valueOf(form.getHireDate()));
+		employee.setSalary(Integer.parseInt(form.getSalary()));
+		employee.setDependentsCount(Integer.parseInt(form.getDependentsCount()));
+		System.out.println(employee);
+		employeeService.insert(employee);
+		return "redirect:/employee/showList";
+	}
+	
 	
 	/**
 	 * オートコンプリート用のnameListを生成する.

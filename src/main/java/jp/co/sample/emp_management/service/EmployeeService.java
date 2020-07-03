@@ -60,4 +60,24 @@ public class EmployeeService {
 	public List<String> showAllName(){
 		return employeeRepository.findAllName();
 	}
+	
+	/**
+	 * 従業員情報を登録します.
+	 * 
+	 * @param employee 新規従業員情報
+	 */
+	public void insert(Employee employee) {
+		int insertId = employeeRepository.findMaxId() + 1;
+		employee.setId(insertId);
+		employeeRepository.insertEmployee(employee);
+	}
+	
+	/**
+	 * メールアドレスから従業員情報を検索します.
+	 * @param mailAddress　メールアドレス
+	 * @return　管理者情報　存在しない場合はnullが返ります
+	 */
+	public Employee findByMailAddress(String mailAddress) {
+		return employeeRepository.findByMailAddress(mailAddress);
+	}
 }
