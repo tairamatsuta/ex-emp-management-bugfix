@@ -39,11 +39,11 @@ public class AdministratorService {
 	 * @return 管理者情報　存在しない場合はnullが返ります
 	 */
 	public Administrator login(String mailAddress, String password) {
-		Administrator administrator = administratorRepository.findByMailAddressAndPassward(mailAddress, password);
-		if(!BCrypt.checkpw(password, administrator.getPassword())) {
-			return null;
+		Administrator administrator = administratorRepository.findByMailAddress(mailAddress);
+		if(BCrypt.checkpw(password, administrator.getPassword())) {
+			return administrator;
 		}
-		return administrator;
+		return null;
 	}
 	
 	/**
