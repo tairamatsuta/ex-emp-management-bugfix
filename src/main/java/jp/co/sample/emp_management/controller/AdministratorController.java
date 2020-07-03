@@ -125,8 +125,8 @@ public class AdministratorController {
 		if(result.hasErrors()) {
 			return toLogin();
 		}
-		Administrator administrator = administratorService.findByMailAddress(form.getMailAddress());
-		if(!BCrypt.checkpw(form.getPassword(), administrator.getPassword())) {
+		Administrator administrator = administratorService.login(form.getMailAddress(), form.getPassword());
+		if(administrator == null) {
 			model.addAttribute("errorMessage", "メールアドレスまたはパスワードが不正です。");
 			return toLogin();
 		}
