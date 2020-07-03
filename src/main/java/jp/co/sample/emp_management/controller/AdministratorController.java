@@ -4,6 +4,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -32,11 +33,6 @@ public class AdministratorController {
 	
 	@Autowired
 	private HttpSession session;
-	
-//	@Bean
-//	private PasswordEncoder passwordEncoder() {
-//		return new BCryptPasswordEncoder();
-//	}
 
 	/**
 	 * 使用するフォームオブジェクトをリクエストスコープに格納する.
@@ -87,8 +83,6 @@ public class AdministratorController {
 		if(!form.getPassword().equals(form.getConfirmationPassword())) {
 			FieldError passwordError = new FieldError(result.getObjectName(), "password", "パスワードが一致していません。");
 			result.addError(passwordError);
-			System.out.println(form.getPassword());
-			System.out.println(form.getConfirmationPassword());
 		}
 		if(result.hasErrors()) {
 			return toInsert();
@@ -131,8 +125,8 @@ public class AdministratorController {
 		if(result.hasErrors()) {
 			return toLogin();
 		}
-		Administrator administrator = administratorService.login(form.getMailAddress(), form.getPassword());
-		if(administrator == null) {
+		Administrator administrator = administratorService.findByMailAddress(form.getMailAddress());
+		if(!BCrypt.checkpw(form.getPassword(), administrator.getPassword())) {
 			model.addAttribute("errorMessage", "メールアドレスまたはパスワードが不正です。");
 			return toLogin();
 		}

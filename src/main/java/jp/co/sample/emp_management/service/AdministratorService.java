@@ -40,9 +40,6 @@ public class AdministratorService {
 	 */
 	public Administrator login(String mailAddress, String password) {
 		Administrator administrator = administratorRepository.findByMailAddressAndPassward(mailAddress, password);
-		if(!BCrypt.checkpw(password, administrator.getPassword())) {
-			return null;
-		}
 		return administrator;
 	}
 	
