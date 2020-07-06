@@ -140,13 +140,9 @@ public class EmployeeController {
 			, Model model) throws IOException {
 		
 		MultipartFile image = form.getImage();
-		String fileExtension = "";
-		System.out.println("try前");
+		String fileExtension = null;
 		try {
-			System.out.println(image);
-			System.out.println("fileExtension前");
 			fileExtension = getFileName(image.getOriginalFilename());
-			System.out.println("fileExtension後");
 			if(!"jpg".equals(fileExtension) && !"png".equals(fileExtension)) {
 				result.rejectValue("image", "", "拡張子は.jpgか.pngにのみ対応しています");
 			}
@@ -182,13 +178,11 @@ public class EmployeeController {
 		employee.setHireDate(Date.valueOf(form.getHireDate()));
 		employee.setSalary(Integer.parseInt(form.getSalary()));
 		employee.setDependentsCount(Integer.parseInt(form.getDependentsCount()));
-		//System.out.println(employee);
 		employeeService.insert(employee);
 		return "redirect:/employee/showList";
 	}
 	
 	private String getFileName(String originalFileName) throws Exception {
-		System.out.println(originalFileName);
 		if(originalFileName == null) {
 			throw new FileNotFoundException();
 		}
@@ -196,7 +190,6 @@ public class EmployeeController {
 		if(point == -1) {
 			throw new FileNotFoundException();
 		}
-		System.err.println(originalFileName.substring(point + 1));
 		return originalFileName.substring(point + 1);
 	}
 	
