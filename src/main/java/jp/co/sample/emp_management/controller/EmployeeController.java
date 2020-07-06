@@ -142,7 +142,7 @@ public class EmployeeController {
 		MultipartFile image = form.getImage();
 		String fileExtension = null;
 		try {
-			fileExtension = getFileName(image.getOriginalFilename());
+			fileExtension = getFileExtension(image.getOriginalFilename());
 			if(!"jpg".equals(fileExtension) && !"png".equals(fileExtension)) {
 				result.rejectValue("image", "", "拡張子は.jpgか.pngにのみ対応しています");
 			}
@@ -182,7 +182,14 @@ public class EmployeeController {
 		return "redirect:/employee/showList";
 	}
 	
-	private String getFileName(String originalFileName) throws Exception {
+	/**
+	 * 画像ファイル名から拡張子の名前を取り出して返す.
+	 * 
+	 * @param originalFileName 画像ファイル名
+	 * @return　拡張子名
+	 * @throws Exception
+	 */
+	private String getFileExtension(String originalFileName) throws Exception {
 		if(originalFileName == null) {
 			throw new FileNotFoundException();
 		}
