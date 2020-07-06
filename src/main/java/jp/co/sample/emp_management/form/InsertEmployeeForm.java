@@ -7,6 +7,7 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Range;
+import org.springframework.web.multipart.MultipartFile;
 
 public class InsertEmployeeForm {
 
@@ -14,7 +15,7 @@ public class InsertEmployeeForm {
 	@NotBlank(message = "従業員名を入力してください")
 	private String name;
 	/** 画像 */
-	private String image;
+	private MultipartFile image;
 	/** 性別 */
 	@NotEmpty(message = "性別を選択してください")
 	private String gender;
@@ -29,18 +30,18 @@ public class InsertEmployeeForm {
 	@Pattern(regexp = "^[0-9]{3}-[0-9]{4}$", message = "郵便番号の形式が不正です")
 	private String zipCode;
 	/** 住所 */
-	@NotBlank(message = "住所を入力してください")
+	//@NotBlank(message = "住所を入力してください")
 	@Size(min = 1, max = 120, message = "住所は1文字以上120文字以内で入力してください")
 	private String address;
 	/** 電話番号 */
 	@Pattern(regexp = "^0\\d{1,4}-\\d{1,4}-\\d{3,4}$", message = "電話番号の形式が不正です")
 	private String telephone;
 	/** 給料 */
-	@NotBlank(message = "給料を入力してください")
+	//@NotBlank(message = "給料を入力してください")
 	@Range(max = 500000, message = "給料は50万円以下で入力してください")
 	private String salary;
 	/** 特性 */
-	@NotBlank(message = "特性を入力してください")
+	//@NotBlank(message = "特性を入力してください")
 	@Size(min = 1, max = 2000, message = "特性は1文字以上2000文字以内で入力してください")
 	private String characteristics;
 	/** 扶養人数 */
@@ -56,11 +57,11 @@ public class InsertEmployeeForm {
 		this.name = name;
 	}
 
-	public String getImage() {
+	public MultipartFile getImage() {
 		return image;
 	}
 
-	public void setImage(String image) {
+	public void setImage(MultipartFile image) {
 		this.image = image;
 	}
 

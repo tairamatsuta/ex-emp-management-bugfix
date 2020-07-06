@@ -14,10 +14,12 @@
 </head>
 <body>
 	<div class="container">
-		上余白
+		<!-- 上余白 -->
 		<div class="row">
 			<div class="col-lg-offset-0 col-lg-6 col-md-8 col-sm-10 col-xs-12">
-				<img src="../../static/img/header_logo.png" th:src="@{/img/header_logo.png}">
+				<a th:href="@{/employee/showList}">
+					<img src="../../static/img/header_logo.png" th:src="@{/img/header_logo.png}">
+				</a>
 			</div>
 		</div>
 		<!-- login form -->
@@ -31,7 +33,7 @@
 
 <!-- ここにモックのform要素を貼り付けます -->
 
-					<form method="post" action="list.html" th:action="@{/employee/insert}" th:object="${insertEmployeeForm}">
+					<form method="post" action="list.html" th:action="@{/employee/insert}" th:object="${insertEmployeeForm}" enctype="multipart/form-data">
 						<fieldset>
 							<legend>従業員情報登録<br>(新規の従業員情報を登録します)</legend>
 							<!-- 従業員名 -->
@@ -56,11 +58,11 @@
 										<label for="image">
 											画像:
 										</label>
-										<label th:if="${#fields.hasErrors('image')}" th:errors="*{image}" class="error-messages">
+										<label th:errors="*{image}" class="error-messages">
 											画像をアップロードしてください
 										</label>
-										<input type="file" name="image" id="image" th:field="*{image}" 
-										th:errorclass="error-input" accept="image/jpg, image/png, .jpg, .png">
+										<input type="file" name="image" id="image"
+										th:errorclass="error-input" accept="image/jpg,image/png,.jpg,.png">
 									</div>
 								</div>
 							</div>
@@ -126,7 +128,7 @@
 										<label th:if="${#fields.hasErrors('zipCode')}" th:errors="*{zipCode}" class="error-messages">
 											郵便番号を入力してください
 										</label>
-										<button id="get_address_btn" type="button">住所検索</button>
+										<button id="get_address_btn" type="button" class="btn btn-primary">住所検索</button>
 										<input type="text" name="zipCode" id="zipCode" class="form-control" placeholder="123-4567"
 											 th:field="*{zipCode}" th:errorclass="error-input" value="123-4567">
 									</div>

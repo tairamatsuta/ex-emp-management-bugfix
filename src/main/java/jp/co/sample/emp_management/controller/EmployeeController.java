@@ -1,6 +1,9 @@
 package jp.co.sample.emp_management.controller;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.Date;
+import java.util.Base64;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import jp.co.sample.emp_management.domain.Employee;
 import jp.co.sample.emp_management.form.InsertEmployeeForm;
@@ -127,17 +131,35 @@ public class EmployeeController {
 	 * 
 	 * @param form 従業員情報用フォーム
 	 * @return 従業員一覧へリダイレクト
+	 * @throws IOException 
 	 */
 	@RequestMapping("/insert")
 	synchronized public String insert(
 			@Validated InsertEmployeeForm form
 			, BindingResult result
-			, Model model) {
-		System.out.println(form.toString());
-		if(form.getImage().equals("")) {
-			FieldError imageError = new FieldError(result.getObjectName(), "image", "画像をアップロードしてください");
-			result.addError(imageError);
+			, Model model) throws IOException {
+		
+		MultipartFile image = form.getImage();
+		String fileExtension = "";
+		System.out.println("try前");
+		try {
+			System.out.println(image);
+			System.out.println("fileExtension前");
+			fileExtension = getFileName(image.getOriginalFilename());
+			System.out.println("fileExtension後");
+			if(!"jpg".equals(fileExtension) && !"png".equals(fileExtension)) {
+				result.rejectValue("image", "", "拡張子は.jpgか.pngにのみ対応しています");
+			}
+		} catch (Exception e) {
+			System.out.println("catch中");
+			result.rejectValue("image", "", "拡張子は.jpgか.pngにのみ対応しています");
 		}
+//		画像をStringで保存していたバージョン
+//		System.out.println(form.toString());
+//		if(form.getImage().equals("")) {
+//			FieldError imageError = new FieldError(result.getObjectName(), "image", "画像をアップロードしてください");
+//			result.addError(imageError);
+//		}
 		Employee existEmployee = employeeService.findByMailAddress(form.getMailAddress());
 		if(existEmployee != null) {
 			FieldError employeeMailAddressError = new FieldError(result.getObjectName(), "mailAddress", "このメールアドレスは既に登録されています");
@@ -150,12 +172,32 @@ public class EmployeeController {
 		// フォームからドメインにプロパティ値をコピー
 		BeanUtils.copyProperties(form, employee);
 		// コピーできなかったプロパティ値を手動でコピー
+		String base64FileString = Base64.getEncoder().encodeToString(image.getBytes());
+		if("jpg".equals(fileExtension)) {
+			base64FileString = "data:image/jpeg;base64," + base64FileString;
+		} else if("png".equals(fileExtension)) {
+			base64FileString = "data:image/png;base64," + base64FileString;
+		}
+		employee.setImage(base64FileString);
 		employee.setHireDate(Date.valueOf(form.getHireDate()));
 		employee.setSalary(Integer.parseInt(form.getSalary()));
 		employee.setDependentsCount(Integer.parseInt(form.getDependentsCount()));
-		System.out.println(employee);
+		//System.out.println(employee);
 		employeeService.insert(employee);
 		return "redirect:/employee/showList";
+	}
+	
+	private String getFileName(String originalFileName) throws Exception {
+		System.out.println(originalFileName);
+		if(originalFileName == null) {
+			throw new FileNotFoundException();
+		}
+		int point = originalFileName.lastIndexOf(".");
+		if(point == -1) {
+			throw new FileNotFoundException();
+		}
+		System.err.println(originalFileName.substring(point + 1));
+		return originalFileName.substring(point + 1);
 	}
 	
 	
